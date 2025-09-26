@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encrypto</title>
+<style>
+    body {
+        font-family: "Segoe UI", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #121212;
+        color: #fff;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    body.light-mode {
+        background-color: #f0f0f0;
+        color: #222;
+    }
+    .container {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+    }
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #4fc3f7;
+    }
+    textarea {
+        width: 100%;
+        height: 150px;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        border: none;
+        resize: none;
+        font-size: 1em;
+        font-family: inherit;
+    }
+    select, button {
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 8px;
+        border: none;
+        font-size: 1em;
+        font-family: inherit;
+    }
+    button {
+        cursor: pointer;
+        background-color: #4fc3f7;
+        color: #fff;
+        transition: background-color 0.3s;
+    }
+    button:hover {
+        background-color: #29b6f6;
+    }
+    .flex-row {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .flex-row select, .flex-row button {
+        flex: 1 1 48%;
+    }
+    .mode-toggle {
+        background-color: #fbc02d;
+        color: #000;
+    }
+    .mode-toggle:hover {
+        background-color: #fdd835;
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Encrypto</h1>
+    <textarea id="inputText" placeholder="Enter your text here..."></textarea>
+    <div class="flex-row">
+        <select id="methodSelect">
+            <option value="json">JSON</option>
+            <option value="yaml">YAML</option>
+            <option value="xml">XML</option>
+            <option value="custom">Custom</option>
+        </select>
+        <select id="customSelect">
+            <option value="">--Custom Method--</option>
+            <option value="rot13">ROT13</option>
+            <option value="base64">Base64</option>
+        </select>
+    </div>
+    <div class="flex-row">
+        <button id="encryptBtn">Encrypt</button>
+        <button id="decryptBtn">Decrypt</button>
+    </div>
+    <textarea id="outputText" placeholder="Output will appear here..." readonly></textarea>
+    <button id="modeToggle" class="mode-toggle">Toggle Light/Dark Mode</button>
+</div>
+<script>
+    const encryptBtn = document.getElementById('encryptBtn');
+    const decryptBtn = document.getElementById('decryptBtn');
+    const inputText = document.getElementById('inputText');
+    const outputText = document.getElementById('outputText');
+    const methodSelect = document.getElementById('methodSelect');
+    const customSelect = document.getElementById('customSelect');
+    const modeToggle = document.getElementById('modeToggle');
+    const body = document.body;
+
+    function encrypt(text) {
+        const method = methodSelect.value;
+        const custom = customSelect.value;
+        try {
+            if (method === 'json') return JSON.stringify({data: text});
+            if (method === 'yaml') return `data: ${text}`;
+            if (method === 'xml') return `<data>${text}</data>`;
+            if (method === 'custom') {
+                if (custom === 'rot13') return text.replace(/[a-zA-Z]/g, c =>
+                    String.fromCharCode(
+                        c.charCodeAt(0) + (c.toLowerCase() < 'n' ? 13 : -13)
+                    )
+                );
+                if (custom === 'base64') return btoa(text);
+            }
+            return text;
+        } catch {
+            return "Error encrypting text";
+        }
+    }
+
+    function decrypt(text) {
+        const method = methodSelect.value;
+        const custom = customSelect.value;
+        try {
+            if (method === 'json') return JSON.parse(text).data;
+            if (method === 'yaml') return text.replace(/^data:\s*/, '');
+            if (method === 'xml') return text.replace(/^<data>|<\/data>$/g, '');
+            if (method === 'custom') {
+                if (custom === 'rot13') return text.replace(/[a-zA-Z]/g, c =>
+                    String.fromCharCode(
+                        c.charCodeAt(0) + (c.toLowerCase() < 'n' ? 13 : -13)
+                    )
+                );
+                if (custom === 'base64') return atob(text);
+            }
+            return text;
+        } catch {
+            return "Error decrypting text";
+        }
+    }
+
+    encryptBtn.addEventListener('click', () => {
+        outputText.value = encrypt(inputText.value);
+    });
+
+    decryptBtn.addEventListener('click', () => {
+        outputText.value = decrypt(inputText.value);
+    });
+
+    modeToggle.addEventListener('click', () => {
+        body.classList.toggle('light-mode');
+    });
+</script>
+</body>
+</html>
